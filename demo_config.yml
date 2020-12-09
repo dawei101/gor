@@ -1,0 +1,49 @@
+devMode: true
+http:
+  serveAt: :9001
+kafka_consumer:
+  default:
+    servers: localhost
+    group: onlinecourse
+    offset: "earliest"
+    topics:
+      - "^regas.*[tt]opic"
+kafka_producer:
+  default:
+    servers: localhost
+    topic: "123opic"
+log:
+  path: /tmp/
+  level: debug
+  maxMB: 10
+  maxDays: 2
+  maxBackups: 10
+api:
+  demo_webservice:
+    baseUrl: http://to.api.host
+    retry: 5
+    timeout: 30
+    specialRules:
+      /need_retry_request:
+        retry: 100
+        timeout: 30000
+        logable: true
+    client:
+      maxIdleConns: 4
+      maxIdleConnsPerHost: 10
+      idleConnTimeoutMs: 1000
+      expectContinueTimeoutMs: 1000
+      responseHeaderTimeoutMs: 200 
+      dialer:
+        timeout: 1000
+        keepAlive: 1000
+        dualStack: false
+
+aliyun:
+  oss:
+    default:
+      urlPrefix: http://url.prefix/with.path
+      endpoint: oss-cn-beijing.aliyuncs.com
+      accessKeyID: xxxxxxxxx
+      accessKeySecret: xxxxxxxxxxxxxx
+      bucketName: yourBucketName
