@@ -1,0 +1,75 @@
+package rredis
+
+/*
+对redis进行简单的封装，实现一次实例，永久使用。
+使用时不需要关心连接池和重连的问题。
+*/
+
+import (
+	"context"
+	"sync"
+
+	"github.com/go-redis/redis/v8"
+
+	"roo.bo/rlib/rlog"
+)
+
+const Nil = redis.Nil
+
+var _redizz map[string]*redis.Client = make(map[string]*redis.Client)
+var _redis_mu sync.RWMutex
+
+//
+// 注册一个为name的redis实例
+//
+// 建立无密码连接sample
+//
+//		Reg("name", "localhost:6379", "", 0)
+//
+func Reg(name, addr, password string, db int) error {
+	ins := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: password,
+		DB:       db,
+	})
+	if pong, err := ins.Ping(context.Background()).Result(); err != nil {
+		rlog.Error(context.Background(), "could not connect to redis:", addr, db, "pong:", pong)
+		return err
+	}
+	_redis_mu.Lock()
+	defer _redis_mu.Unlock()
+	_redizz[name] = ins
+	return nil
+}
+
+//
+// 注册一个为name的redis实例
+//
+// 以下等同
+//
+//		RegDefault("localhost:6379", "", 0)
+//		Reg("default", "localhost:6379", "", 0)
+//
+func RegDefault(addr, password string, db int) error {
+	return Reg("default", addr, password, db)
+}
+
+//
+// 返回 *redis.Client, 参见：  https://github.com/go-redis/redis
+//
+func Redis(name string) *redis.Client {
+	_redis_mu.RLock()
+	defer _redis_mu.RUnlock()
+	ins, ok := _redizz[name]
+	if !ok {
+		panic("no redis instance named:" + name)
+	}
+	return ins
+}
+
+//
+// 返回 *redis.Client, 参见：  https://github.com/go-redis/redis
+//
+func DefaultRedis() *redis.Client {
+	return Redis("default")
+}
