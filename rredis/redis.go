@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	"roo.bo/rlib/rlog"
+	"github.com/dawei101/gor/rlog"
 )
 
 const Nil = redis.Nil

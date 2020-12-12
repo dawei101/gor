@@ -13,7 +13,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"roo.bo/rlib/rlog"
+	"github.com/dawei101/gor/rlog"
 )
 
 type rDB struct {

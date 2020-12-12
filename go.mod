@@ -1,4 +1,4 @@
-module roo.bo/rlib
+module github.com/dawei101/gor
 
 go 1.14
 

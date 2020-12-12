@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/rs/xid"
-	"roo.bo/rlib/rhttp"
-	"roo.bo/rlib/rlog"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rlog"
 )
 
 type FileUploadHandler struct {

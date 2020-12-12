@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	"roo.bo/rlib"
+	"github.com/dawei101/gor"
 )
 
 func TestOss(t *testing.T) {
