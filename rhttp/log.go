@@ -10,8 +10,8 @@ import (
 
 	"github.com/rs/xid"
 
-	"roo.bo/rlib/base"
-	"roo.bo/rlib/rlog"
+	"github.com/dawei101/gor/base"
+	"github.com/dawei101/gor/rlog"
 )
 
 var (
@@ -103,7 +103,7 @@ func (r *multiResponseWriter) WriteHeader(statusCode int) {
 	r.rw.WriteHeader(statusCode)
 }
 
-func middleware_httpRequestLog(handler http.Handler) http.Handler {
+func Middleware_httpRequestLog(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		r = prepareContext(r)

@@ -13,9 +13,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/xid"
 
-	"roo.bo/rlib/rhttp"
-	"roo.bo/rlib/rlog"
-	"roo.bo/rlib/rredis"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rlog"
+	"github.com/dawei101/gor/rredis"
 )
 
 type BigFileUpload struct {

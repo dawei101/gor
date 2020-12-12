@@ -9,8 +9,8 @@ import (
 	"sync"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"roo.bo/rlib/rconfig"
-	"roo.bo/rlib/rlog"
+	"github.com/dawei101/gor/rconfig"
+	"github.com/dawei101/gor/rlog"
 )
 
 type BucketConfig struct {

@@ -11,9 +11,9 @@ import (
 	"database/sql"
 	"github.com/gorilla/mux"
 
-	"roo.bo/rlib/rhttp"
-	"roo.bo/rlib/rlog"
-	"roo.bo/rlib/rsql"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rlog"
+	"github.com/dawei101/gor/rsql"
 )
 
 var (
