@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"roo.bo/rlib/rlog"
+	"github.com/dawei101/gor/rlog"
 )
 
 type _ParamsType int32
