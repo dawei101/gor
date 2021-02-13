@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"roo.bo/rlib/base"
-	"roo.bo/rlib/rcontext"
+	"github.com/dawei101/gor/base"
+	"github.com/dawei101/gor/rcontext"
 )
 
 func JsonBodyTo(r *http.Request, v interface{}) error {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"roo.bo/rlib/base"
+	"github.com/dawei101/gor/base"
 )
 
 var configs = make(map[string]*Config)
