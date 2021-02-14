@@ -77,3 +77,38 @@ func GetConfig(name string) *Config {
 	}
 	return cfg
 }
+
+func DataAssignTo(val interface{}) {
+	DefaultConfig().DataAssignTo(val)
+}
+
+func GetInt(key string) (int, bool) {
+	return DefaultConfig().GetInt(key)
+}
+
+func GetString(key string) (string, bool) {
+	return DefaultConfig().GetString(key)
+}
+
+func GetFloat(key string) (float64, bool) {
+	return DefaultConfig().GetFloat(key)
+}
+
+func GetSlice(key string) ([]interface{}, bool) {
+	return DefaultConfig().GetSlice(key)
+}
+
+func Get(key string) (interface{}, bool) {
+	return DefaultConfig().Get(key)
+}
+
+func GetStruct(key string) (*base.Struct, bool) {
+	return DefaultConfig().GetStruct(key)
+}
+func ValueAssignTo(keyPath string, valuePointer interface{}, default_val interface{}) {
+	DefaultConfig().ValueAssignTo(keyPath, valuePointer, default_val)
+}
+
+func ValueMustAssignTo(keyPath string, valuePointer interface{}) {
+	DefaultConfig().ValueMustAssignTo(keyPath, valuePointer)
+}
