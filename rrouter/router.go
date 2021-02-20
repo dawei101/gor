@@ -8,7 +8,7 @@ import (
 	"github.com/rs/xid"
 )
 
-type Middleware func(httprouter.Handle) httprouter.Handle
+type Middleware func(http.HandlerFunc) http.HandlerFunc
 
 type Router struct {
 	*httprouter.Router
@@ -26,7 +26,7 @@ func (r *Router) Use(mw Middleware) {
 	r.middlewares = append(r.middlewares, mw)
 }
 
-func (r *Router) Wrap(fn httprouter.Handle) httprouter.Handle {
+func (r *Router) Wrap(fn http.HandlerFunc) http.HandlerFunc {
 	l := len(r.middlewares)
 	if l == 0 {
 		return fn
@@ -35,7 +35,7 @@ func (r *Router) Wrap(fn httprouter.Handle) httprouter.Handle {
 	// There is at least one item in the list. Starting
 	// with the last item, create the handler to be
 	// returned:
-	var result httprouter.Handle
+	var result http.HandlerFunc
 	result = r.middlewares[l-1](fn)
 
 	// Reverse through the stack for the remaining elements,
@@ -67,12 +67,59 @@ func (r *Router) Subroute(prefix string, sub *Router) {
 	}
 	subpath_name := "subroute" + xid.New().String()
 	path := prefix + "/:" + subpath_name
-	handler := func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		path := "/" + ps.ByName(subpath_name)
-		r.URL.Path = path
-		sub.ServeHTTP(w, r)
+	handler := func(w http.ResponseWriter, req *http.Request) {
+		path := "/" + Var(req, subpath_name)
+		req.URL.Path = path
+		sub.ServeHTTP(w, req)
 	}
 	for _, method := range []string{"GET", "POST", "PUT", "DELETE"} {
 		r.Handle(method, path, handler)
 	}
+}
+
+// GET is a shortcut for router.Handle(http.MethodGet, path, handle)
+func (r *Router) GET(path string, handle http.HandlerFunc) {
+	r.Handle(http.MethodGet, path, handle)
+}
+
+// HEAD is a shortcut for router.Handle(http.MethodHead, path, handle)
+func (r *Router) HEAD(path string, handle http.HandlerFunc) {
+	r.Handle(http.MethodHead, path, handle)
+}
+
+// OPTIONS is a shortcut for router.Handle(http.MethodOptions, path, handle)
+func (r *Router) OPTIONS(path string, handle http.HandlerFunc) {
+	r.Handle(http.MethodOptions, path, handle)
+}
+
+// POST is a shortcut for router.Handle(http.MethodPost, path, handle)
+func (r *Router) POST(path string, handle http.HandlerFunc) {
+	r.Handle(http.MethodPost, path, handle)
+}
+
+// PUT is a shortcut for router.Handle(http.MethodPut, path, handle)
+func (r *Router) PUT(path string, handle http.HandlerFunc) {
+	r.Handle(http.MethodPut, path, handle)
+}
+
+// PATCH is a shortcut for router.Handle(http.MethodPatch, path, handle)
+func (r *Router) PATCH(path string, handle http.HandlerFunc) {
+	r.Handle(http.MethodPatch, path, handle)
+}
+
+// DELETE is a shortcut for router.Handle(http.MethodDelete, path, handle)
+func (r *Router) DELETE(path string, handle http.HandlerFunc) {
+	r.Handle(http.MethodDelete, path, handle)
+}
+
+// Handle registers a new request handle with the given path and method.
+//
+// For GET, POST, PUT, PATCH and DELETE requests the respective shortcut
+// functions can be used.
+//
+// This function is intended for bulk loading and to allow the usage of less
+// frequently used, non-standardized or custom methods (e.g. for internal
+// communication with a proxy).
+func (r *Router) Handle(method, path string, handle http.HandlerFunc) {
+	r.HandlerFunc(method, path, handle)
 }
