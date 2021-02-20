@@ -6,13 +6,11 @@ import (
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 func TestUse(t *testing.T) {
 	s := New()
-	mw := func(fn httprouter.Handle) httprouter.Handle {
+	mw := func(fn http.HandlerFunc) http.HandlerFunc {
 		return fn
 	}
 	c := len(s.middlewares)
@@ -28,16 +26,16 @@ func TestWrap(t *testing.T) {
 	s := New()
 
 	var middlewareCalled bool
-	mw := func(fn httprouter.Handle) httprouter.Handle {
-		return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	mw := func(fn http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
 			middlewareCalled = true
-			fn(w, r, p)
+			fn(w, r)
 		}
 	}
 	s.Use(mw)
 
 	var handlerCalled bool
-	hn := func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	hn := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
 
@@ -65,33 +63,33 @@ func TestWrap_Ordering(t *testing.T) {
 	var fourthCallAt *time.Time
 	var handlerCallAt *time.Time
 
-	first := func(fn httprouter.Handle) httprouter.Handle {
-		return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	first := func(fn http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
 			ts := time.Now()
 			firstCallAt = &ts
-			fn(w, r, p)
+			fn(w, r)
 		}
 	}
 
-	second := func(fn httprouter.Handle) httprouter.Handle {
-		return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	second := func(fn http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
 			ts := time.Now()
 			secondCallAt = &ts
-			fn(w, r, p)
+			fn(w, r)
 		}
 	}
-	third := func(fn httprouter.Handle) httprouter.Handle {
-		return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	third := func(fn http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
 			ts := time.Now()
 			thirdCallAt = &ts
-			fn(w, r, p)
+			fn(w, r)
 		}
 	}
-	fourth := func(fn httprouter.Handle) httprouter.Handle {
-		return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	fourth := func(fn http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
 			ts := time.Now()
 			fourthCallAt = &ts
-			fn(w, r, p)
+			fn(w, r)
 		}
 	}
 
@@ -100,7 +98,7 @@ func TestWrap_Ordering(t *testing.T) {
 	s.Use(third)
 	s.Use(fourth)
 
-	hn := func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	hn := func(w http.ResponseWriter, r *http.Request) {
 		ts := time.Now()
 		handlerCallAt = &ts
 	}
@@ -130,7 +128,7 @@ func TestWrap_Ordering(t *testing.T) {
 
 func TestWrap_WhenEmpty(t *testing.T) {
 	s := New()
-	hn := func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {}
+	hn := func(w http.ResponseWriter, r *http.Request) {}
 	w := s.Wrap(hn)
 
 	if reflect.ValueOf(hn).Pointer() != reflect.ValueOf(w).Pointer() {
@@ -138,9 +136,9 @@ func TestWrap_WhenEmpty(t *testing.T) {
 	}
 }
 
-func plainHandler(fn httprouter.Handle) http.HandlerFunc {
+func plainHandler(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fn(w, r, httprouter.Params{})
+		fn(w, r)
 	}
 }
 
@@ -148,7 +146,7 @@ func TestSubroute(t *testing.T) {
 
 	sr := New()
 	var handlerCalled bool
-	hn := func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	hn := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
 	sr.GET("/subroute", hn)
