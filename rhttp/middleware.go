@@ -2,14 +2,13 @@ package rhttp
 
 import (
 	"compress/gzip"
-    "io"
-    "net/http"
+	"io"
+	"net/http"
 	"runtime/debug"
-    "strings"
+	"strings"
 
 	"github.com/dawei101/gor/rlog"
 )
-
 
 type gzipResponseWriter struct {
 	io.Writer

@@ -45,3 +45,7 @@ func (rr *Resp) DataAssignTo(data interface{}) {
 	d, _ := json.Marshal(rr.Data)
 	json.Unmarshal(d, data)
 }
+
+func (res *Resp) FlushHtml(tpl string, w http.ResponseWriter) error {
+	// use rrender
+}

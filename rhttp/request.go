@@ -3,7 +3,6 @@ package rhttp
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -25,11 +24,11 @@ func JsonBody(r *http.Request) (st *base.Struct, err error) {
 	ctype := r.Header.Get("Content-Type")
 
 	if r.Method == "GET" {
-		return nil, errors.New("method=GET")
+		return nil, NewRespErr(422, "http GET method is not correct", "")
 	}
 
 	if !strings.Contains(ctype, "application/json") {
-		return nil, errors.New(ctype)
+		return nil, NewRespErr(422, "body is not json", "")
 	}
 
 	ctx := rcontext.Context(r)
