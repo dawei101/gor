@@ -22,6 +22,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/opentracing/opentracing-go v1.1.1-0.20190913142402-a7454ce5950e // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible

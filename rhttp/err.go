@@ -26,3 +26,10 @@ func (e RespErr) Error() string {
 func (e RespErr) Flush(w http.ResponseWriter) {
 	NewErrResp(e.Code, e.Msg, e.Desc).Flush(w)
 }
+
+func FlushErr(w http.ResponseWriter, err error) {
+	if ok, rerr := err.(RespErr); ok {
+		rerr.Flush(w)
+	}
+	NewRespErr(500, "server error", err.Error()).Flush(w)
+}
