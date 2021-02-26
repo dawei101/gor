@@ -3,16 +3,13 @@ package rconfig
 import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
-	"os"
 	"strings"
 	"sync"
 
 	"github.com/dawei101/gor/base"
 )
 
-var configs = make(map[string]*Config)
-var c_lock sync.RWMutex
-var default_config_once sync.Once
+var configs = sync.Map{}
 
 // 最顶层设置
 type RConfig struct {
@@ -25,60 +22,37 @@ type Config struct {
 	RConfig *RConfig
 }
 
-//
-// 加载并注册配置文件，并按name标识起来
-//
-func Reg(name, filePath string) *Config {
-	if cfg, ok := configs[name]; ok {
-		return cfg
-	}
-
-	data := make(map[string]interface{})
-	rconfig := RConfig{}
-	f, err := os.Open(filePath)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	byteValue, _ := ioutil.ReadAll(f)
-
-	cfname := strings.ToLower(filePath)
-	yaml.Unmarshal(byteValue, &data)
-	yaml.Unmarshal(byteValue, &rconfig)
-
-	c_lock.Lock()
-	cfg := &Config{Struct: base.NewStruct(data), name: name, RConfig: &rconfig}
-	configs[name] = cfg
-	c_lock.Unlock()
-	return cfg
-}
-
-// 装在默认的配置文件，必须在使用前加载配置
-func RegDefault(filePath string) *Config {
-	return Reg("default", filePath)
-}
-
-// 获取默认配置
-//
-//如果未通过`LoadDefaultConfig(filePath)` 或 `LoadConfig(name, filePath)` 加载过配置, 将会panic
-//		LoadDefaultConfig("./current/path/config.yml")
-//		GetDefaultConfig()
-// 一般情况下，我们只需要使用 default 这套config就足够用
-func DefaultConfig() *Config {
-	return GetConfig("default")
-}
-
-// 根据配置名获取配置
-//		LoadConfig("myconfig", "./current/path/config.yml")
-//		GetConfig("myconfig")
-func GetConfig(name string) *Config {
-	c_lock.Lock()
-	defer c_lock.Unlock()
-	cfg, ok := configs[name]
+// register a configuration item
+// Reg("default","config.yml")
+func RegConfig(name, filePath string) {
+	_, ok := configs.Load(name)
 	if !ok {
-		panic("no config named:" + name + " loaded, you need load first!!")
+		if !strings.HasSuffix(filePath, ".yml") {
+			panic("the file is not a yml")
+		}
+
+		byteValue, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			panic(err)
+		}
+
+		data := make(map[string]interface{})
+		if err = yaml.Unmarshal(byteValue, &data); err != nil {
+			panic(err)
+		}
+		configs.Store(name, &Config{Struct: base.NewStruct(data), name: name})
 	}
-	return cfg
+}
+
+// get a configuration item
+// Get("default")
+func GetConfig(name string) *Config {
+	raw, ok := configs.Load(name)
+	if !ok {
+		RegConfig(name, name+".yml")
+		raw, _ = configs.Load(name)
+	}
+	return raw.(*Config)
 }
 
 /*
@@ -126,6 +100,10 @@ func (c *Config) ValueMustAssignTo(keyPath string, valuePointer interface{}) {
 	if valuePointer == nil {
 		panic("no value in struct")
 	}
+}
+
+func DefaultConfig() *Config {
+	return GetConfig("default")
 }
 
 func IsDev() bool {
