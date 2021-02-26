@@ -6,19 +6,19 @@ import (
 )
 
 func TestRegConfig(t *testing.T) {
-	assert.Panics(t, func() { RegConfig("json", "test.json") })
+	assert.Panics(t, func() { Reg("json", "test.json") })
 
-	assert.Panics(t, func() { RegConfig("non", "non.yml") })
+	assert.Panics(t, func() { Reg("non", "non.yml") })
 
-	assert.Panics(t, func() { RegConfig("wrongYml", "tests/wrong.yml") })
+	assert.Panics(t, func() { Reg("wrongYml", "tests/wrong.yml") })
 
-	assert.NotPanics(t, func() { RegConfig("defaultYml", "tests/config.yml") })
+	assert.NotPanics(t, func() { Reg("defaultYml", "tests/config.yml") })
 }
 
 func TestGetConfig(t *testing.T) {
-	RegConfig("default", "tests/config.yml")
+	Reg("default", "tests/config.yml")
 
-	s := GetConfig("default")
+	s := Get("default")
 
 	type Mysql struct {
 		DB   string
@@ -26,25 +26,25 @@ func TestGetConfig(t *testing.T) {
 		Port int
 	}
 	var mysql Mysql
-	s.ValueAssignTo("mysql", &mysql, "")
-	assert.Equal(t, mysql, Mysql{
+	s.ValTo("mysql", &mysql)
+	assert.Equal(t, Mysql{
 		DB:   "default",
 		Host: "127.0.0.1",
 		Port: 3306,
-	})
+	}, mysql)
 
 	type Calendar struct {
 		Days   []int
 		Months map[int]string
 	}
 	var calendar Calendar
-	s.ValueAssignTo("calendar", &calendar, "")
-	assert.Equal(t, calendar, Calendar{
+	s.ValTo("level1.calendar", &calendar)
+	assert.Equal(t, Calendar{
 		Days: []int{1, 2, 3, 4, 5},
 		Months: map[int]string{
 			1: "January",
 			2: "February",
 			3: "March",
 		},
-	})
+	}, calendar)
 }

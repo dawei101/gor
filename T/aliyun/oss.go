@@ -68,7 +68,7 @@ var default_config_once sync.Once
 func GetOssBucket(configname string) (*Bucket, error) {
 	default_config_once.Do(func() {
 		configs := make(map[string]*BucketConfig)
-		rconfig.DefaultConfig().ValueMustAssignTo("aliyun.oss", &configs)
+		rconfig.DefConf().ValueMustAssignTo("aliyun.oss", &configs)
 		rlog.Info(context.Background(), "load aliyun.oss config:", configs)
 		for name, config := range configs {
 			buckets[name] = &Bucket{Config: config}
