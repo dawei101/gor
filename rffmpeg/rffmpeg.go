@@ -58,7 +58,6 @@ func (t *Transcoder) To(format string) ([]byte, error) {
 	}
 	defer r.Close()
 
-
 	if 0 < t.Rate {
 		trans.MediaFile().SetAudioRate(t.Rate)
 	}
