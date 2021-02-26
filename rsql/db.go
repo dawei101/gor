@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-
-	"roo.bo/rlib/rdb"
 )
 
 type ISqlx interface {
@@ -362,11 +360,11 @@ func Begin() (*DB, error) {
 
 // Use is change database
 func Use(db string) *DB {
-	return &DB{database: rdb.DBX(db)}
+	return &DB{database: DBX(db)}
 }
 
 func UseDefault() *DB {
-	return &DB{database: rdb.DefaultDBX()}
+	return &DB{database: DefaultDBX()}
 }
 
 // Exec default database
