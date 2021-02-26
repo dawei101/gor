@@ -2,7 +2,6 @@ package base
 
 import (
 	"encoding/json"
-	"strings"
 	"sync"
 )
 

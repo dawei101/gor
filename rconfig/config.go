@@ -1,7 +1,6 @@
 package rconfig
 
 import (
-	"errors"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
@@ -48,7 +47,7 @@ func Reg(name, filePath string) *Config {
 	yaml.Unmarshal(byteValue, &rconfig)
 
 	c_lock.Lock()
-	cfg := &Config{Struct: base.NewStruct(data), name: name, &rconfig}
+	cfg := &Config{Struct: base.NewStruct(data), name: name, RConfig: &rconfig}
 	configs[name] = cfg
 	c_lock.Unlock()
 	return cfg
@@ -111,8 +110,8 @@ func (c *Config) ValueAssignTo(keyPath string, valuePointer interface{}, default
 	}
 }
 
-func (c *Config) IsDevMode() bool {
-	return c.RConfig.IsDevMode
+func (c *Config) IsDev() bool {
+	return c.RConfig.DevMode
 }
 
 /*
@@ -129,8 +128,8 @@ func (c *Config) ValueMustAssignTo(keyPath string, valuePointer interface{}) {
 	}
 }
 
-func IsDevMode() bool {
-	return DefaultConfig().IsDevMode
+func IsDev() bool {
+	return DefaultConfig().IsDev()
 }
 
 func DataAssignTo(val interface{}) {
