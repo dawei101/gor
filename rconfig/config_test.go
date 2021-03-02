@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+
 func TestRegConfig(t *testing.T) {
 	assert.Panics(t, func() { Reg("json", "test.json") })
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
-	"os"
 	"strings"
 	"sync"
 )
@@ -23,15 +22,6 @@ type Config struct {
 	name    string
 	data    map[string]interface{}
 	RConfig RConfig
-}
-
-func init() {
-	_, err := os.Stat(DefFile)
-	if err != nil {
-		panic(err)
-	}
-
-	Reg(DefName, DefFile)
 }
 
 // register a configuration item
@@ -73,20 +63,16 @@ func Get(name string) *Config {
 // set val to the struct
 // ValTo("mysql",&m)
 func (c *Config) ValTo(keyPath string, ptr interface{}) bool {
-	var val interface{}
-	val = c.data
-	for _, key := range strings.Split(keyPath, ".") {
-		if key == "" {
-			continue
-		}
-		val = (val.(map[string]interface{}))[key]
-		if val == nil {
-			break
+	var val interface{} = c.data
+	if keyPath != "" {
+		for _, key := range strings.Split(keyPath, ".") {
+			val = (val.(map[string]interface{}))[key]
+			if val == nil {
+				return false
+			}
 		}
 	}
-	if val == nil {
-		return false
-	}
+
 	d, err := yaml.Marshal(val)
 	if err != nil {
 		return false
