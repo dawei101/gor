@@ -1,18 +1,18 @@
 package rconfig
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
-
-	"github.com/dawei101/gor/base"
 )
 
-var configs = make(map[string]*Config)
-var c_lock sync.RWMutex
-var default_config_once sync.Once
+const DefName = "default"
+const DefFile = "config.yml"
+
+var configs = sync.Map{}
 
 // 最顶层设置
 type RConfig struct {
@@ -20,149 +20,84 @@ type RConfig struct {
 }
 
 type Config struct {
-	*base.Struct
 	name    string
-	RConfig *RConfig
+	data    map[string]interface{}
+	RConfig RConfig
 }
 
-//
-// 加载并注册配置文件，并按name标识起来
-//
-func Reg(name, filePath string) *Config {
-	if cfg, ok := configs[name]; ok {
-		return cfg
-	}
-
-	data := make(map[string]interface{})
-	rconfig := RConfig{}
-	f, err := os.Open(filePath)
+func init() {
+	_, err := os.Stat(DefFile)
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
-	byteValue, _ := ioutil.ReadAll(f)
 
-	cfname := strings.ToLower(filePath)
-	yaml.Unmarshal(byteValue, &data)
-	yaml.Unmarshal(byteValue, &rconfig)
-
-	c_lock.Lock()
-	cfg := &Config{Struct: base.NewStruct(data), name: name, RConfig: &rconfig}
-	configs[name] = cfg
-	c_lock.Unlock()
-	return cfg
+	Reg(DefName, DefFile)
 }
 
-// 装在默认的配置文件，必须在使用前加载配置
-func RegDefault(filePath string) *Config {
-	return Reg("default", filePath)
-}
-
-// 获取默认配置
-//
-//如果未通过`LoadDefaultConfig(filePath)` 或 `LoadConfig(name, filePath)` 加载过配置, 将会panic
-//		LoadDefaultConfig("./current/path/config.yml")
-//		GetDefaultConfig()
-// 一般情况下，我们只需要使用 default 这套config就足够用
-func DefaultConfig() *Config {
-	return GetConfig("default")
-}
-
-// 根据配置名获取配置
-//		LoadConfig("myconfig", "./current/path/config.yml")
-//		GetConfig("myconfig")
-func GetConfig(name string) *Config {
-	c_lock.Lock()
-	defer c_lock.Unlock()
-	cfg, ok := configs[name]
-	if !ok {
-		panic("no config named:" + name + " loaded, you need load first!!")
+// register a configuration item
+// Reg("default","config.yml")
+func Reg(name, file string) {
+	_, ok := configs.Load(name)
+	if ok {
+		return
 	}
-	return cfg
+
+	if !strings.HasSuffix(file, ".yml") {
+		panic(fmt.Sprintf("the file `%s` is not a yml", file))
+	}
+
+	byteVal, err := ioutil.ReadFile(file)
+	if err != nil {
+		panic(err)
+	}
+
+	data := make(map[string]interface{})
+	if err = yaml.Unmarshal(byteVal, &data); err != nil {
+		panic(err)
+	}
+	c := &Config{name: name, data: data}
+	c.ValTo("", &c.RConfig)
+	configs.Store(name, c)
 }
 
-/*
-将keyPath的设置复制到&value, 可以为空
-	pageSize := 0
-	c.ValueAssignTo("the.key.path.to.here", &pageSize, 10)
+// get a configuration item
+// Get("default")
+func Get(name string) *Config {
+	raw, ok := configs.Load(name)
+	if !ok {
+		panic(fmt.Sprintf("the config `%s` is not exist", name))
+	}
+	return raw.(*Config)
+}
 
-*/
-func (c *Config) ValueAssignTo(keyPath string, valuePointer interface{}, default_val interface{}) {
-	c.RLock()
-	defer c.RUnlock()
-	keyps := strings.Split(keyPath, ".")
+// set val to the struct
+// ValTo("mysql",&m)
+func (c *Config) ValTo(keyPath string, ptr interface{}) bool {
 	var val interface{}
-	val = c.Raw
-	for _, el := range keyps {
-		val = (val.(map[string]interface{}))[el]
+	val = c.data
+	for _, key := range strings.Split(keyPath, ".") {
+		if key == "" {
+			continue
+		}
+		val = (val.(map[string]interface{}))[key]
 		if val == nil {
 			break
 		}
 	}
-	if val != nil {
-		d, _ := yaml.Marshal(val)
-		yaml.Unmarshal(d, valuePointer)
-		return
+	if val == nil {
+		return false
 	}
-	if default_val != nil {
-		d, _ := yaml.Marshal(default_val)
-		yaml.Unmarshal(d, valuePointer)
+	d, err := yaml.Marshal(val)
+	if err != nil {
+		return false
 	}
+	return yaml.Unmarshal(d, ptr) == nil
 }
 
 func (c *Config) IsDev() bool {
 	return c.RConfig.DevMode
 }
 
-/*
-将keyPath的设置复制到&value, 必须存在
-
-	pageSize := 0
-	c.MustValueAssignTo("the.key.path.to.here", &pageSize)
-
-*/
-func (c *Config) ValueMustAssignTo(keyPath string, valuePointer interface{}) {
-	c.ValueAssignTo(keyPath, valuePointer, nil)
-	if valuePointer == nil {
-		panic("no value in struct")
-	}
-}
-
-func IsDev() bool {
-	return DefaultConfig().IsDev()
-}
-
-func DataAssignTo(val interface{}) {
-	DefaultConfig().DataAssignTo(val)
-}
-
-func GetInt(key string) (int, bool) {
-	return DefaultConfig().GetInt(key)
-}
-
-func GetString(key string) (string, bool) {
-	return DefaultConfig().GetString(key)
-}
-
-func GetFloat(key string) (float64, bool) {
-	return DefaultConfig().GetFloat(key)
-}
-
-func GetSlice(key string) ([]interface{}, bool) {
-	return DefaultConfig().GetSlice(key)
-}
-
-func Get(key string) (interface{}, bool) {
-	return DefaultConfig().Get(key)
-}
-
-func GetStruct(key string) (*base.Struct, bool) {
-	return DefaultConfig().GetStruct(key)
-}
-func ValueAssignTo(keyPath string, valuePointer interface{}, default_val interface{}) {
-	DefaultConfig().ValueAssignTo(keyPath, valuePointer, default_val)
-}
-
-func ValueMustAssignTo(keyPath string, valuePointer interface{}) {
-	DefaultConfig().ValueMustAssignTo(keyPath, valuePointer)
+func DefConf() *Config {
+	return Get(DefName)
 }

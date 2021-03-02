@@ -27,6 +27,7 @@ require (
 	github.com/opentracing/opentracing-go v1.1.1-0.20190913142402-a7454ce5950e // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rs/xid v1.2.1
+	github.com/stretchr/testify v1.6.1
 	github.com/unrolled/render v1.0.3
 	github.com/yunpian/yunpian-go-sdk v0.0.0-20171206021512-2193bf8a7459
 	golang.org/x/exp v0.0.0-20200513190911-00229845015e // indirect
