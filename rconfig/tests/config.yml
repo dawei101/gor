@@ -1,0 +1,26 @@
+debug: true
+mysql:
+  db: default
+  host: 127.0.0.1
+  port: 3306
+level1:
+  calendar:
+    days:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+    months:
+      1: January
+      2: February
+      3: March
+human:
+  name: mary
+  likes:
+    - id: 1
+      name: mango
+    - id: 2
+      name: apple
+    - id: 3
+      name: banana
