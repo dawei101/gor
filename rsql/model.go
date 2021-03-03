@@ -5,8 +5,6 @@ import (
 	"log"
 	"reflect"
 	"strconv"
-
-	"roo.bo/rlib/rdb"
 )
 
 var (
@@ -46,7 +44,7 @@ type Builder struct {
 func Model(model interface{}) *Builder {
 	return &Builder{
 		model: model,
-		db:    &DB{database: rdb.DefaultDBX()},
+		db:    &DB{database: DefDBX()},
 	}
 }
 

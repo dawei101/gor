@@ -6,13 +6,13 @@ import (
 )
 
 func TestRegConfig(t *testing.T) {
-	assert.Panics(t, func() { Reg("json", "test.json") })
+	assert.NotNil(t, Reg("json", "test.json"))
 
-	assert.Panics(t, func() { Reg("non", "non.yml") })
+	assert.NotNil(t, Reg("non", "non.yml"))
 
-	assert.Panics(t, func() { Reg("wrongYml", "tests/wrong.yml") })
+	assert.NotNil(t, Reg("wrongYml", "tests/wrong.yml"))
 
-	assert.NotPanics(t, func() { Reg("defaultYml", "tests/config.yml") })
+	assert.Nil(t, Reg("defaultYml", "tests/config.yml"))
 }
 
 func TestGetConfig(t *testing.T) {

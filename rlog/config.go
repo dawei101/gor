@@ -1,63 +1,78 @@
 package rlog
 
 import (
+	"errors"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/dawei101/gor/rconfig"
 )
 
-var LogConfig struct {
-	Path       string `json:"path" yaml:"path"`
-	Level      string `json:"level" yaml:"level"`
-	MaxMB      int    `json:"maxMB" yaml:"maxDB"`
-	MaxDays    int    `json:"maxDays" yaml:"MaxDays"`
-	MaxBackups int    `json:"maxBackups" yaml:"MaxBackups"`
-	RotateTime string `json:"rotateTime" yaml:"RotateTime"`
+var config struct {
+	Path       string `yaml:"path"`
+	Level      string `yaml:"level"`
+	MaxMB      int    `yaml:"maxDB"`
+	MaxDays    int    `yaml:"MaxDays"`
+	MaxBackups int    `yaml:"MaxBackups"`
 }
 
-func init() {
-	rconfig.ValueMustAssignTo("rconfig", &LogConfig)
+func loadConfig() error {
+	rconfig.DefConf().ValTo("rlog", &config)
 
-	c := LogConfig
-
-	if c.Log == nil || len(c.Log.Path) == 0 {
-		panic("Log config is not corrent")
+	if config.Path == "" {
+		return errors.New("Log config is not corrent")
 	}
-	if _, err := os.Stat(c.Log.Path); err != nil {
-		panic("Log config(log.path) is not correct:" + c.Log.Path)
+	if _, err := os.Stat(config.Path); err != nil {
+		return errors.New("Log config(log.path) is not correct:" + config.Path)
 	}
 
-	execf := filepath.Base(os.Args[0])
+	logLevel = logLevelFromString(config.Level)
+	deflog := New(defName)
+	logs.Store(defName, deflog)
 
-	reqlogf := path.Join(c.Log.Path, execf+".request.log")
-	apilogf := path.Join(c.Log.Path, execf+".api.log")
-	applogf := path.Join(c.Log.Path, execf+".app.log")
+	Debug = deflog.Debug
+	Warning = deflog.Warning
+	Error = deflog.Error
+	Info = deflog.Info
 
-	loglv := LogLevelFromString(c.Log.Level)
-	reqLog = NewFileLoggerHolder(reqlogf, loglv, c.Log.MaxMB, c.Log.MaxDays, c.Log.MaxBackups)
-	apiLog = NewFileLoggerHolder(apilogf, loglv, c.Log.MaxMB, c.Log.MaxDays, c.Log.MaxBackups)
-	appLog = NewFileLoggerHolder(applogf, loglv, c.Log.MaxMB, c.Log.MaxDays, c.Log.MaxBackups)
-	SetDefaultLog(appLog)
+	return nil
+}
 
-	rotateTime := c.Log.RotateTime
-	hour := 23
-	min := 59
-	sec := 59
-	if rotateTime != "" {
-		rotateSlice := strings.Split(rotateTime, ":")
-		if len(rotateSlice) != 3 {
-			panic("config rotate time should be like 23:59:59")
-		}
-		var err1, err2, err3 error
-		hour, err1 = strconv.Atoi(rotateSlice[0])
-		min, err2 = strconv.Atoi(rotateSlice[1])
-		sec, err3 = strconv.Atoi(rotateSlice[2])
-		if err1 != nil || err2 != nil || err3 != nil {
-			panic("config rotate time should be like 23:59:59")
-		}
-		if hour < 0 || hour > 23 || min < 0 || min > 59 || sec < 0 || sec > 59 {
-			panic("config rotate time invalidate,it should be like 23:59:59")
-		}
+func logLevelFromString(level string) LogLevel {
+	switch strings.ToLower(level) {
+	case "debug":
+		return LEVEL_DEBUG
+	case "info":
+		return LEVEL_INFO
+	case "warning", "warn":
+		return LEVEL_WARNING
+	case "error":
+		return LEVEL_ERROR
+	default:
+		return LEVEL_INFO
 	}
+}
 
-	go run_rotate_log(hour, min, sec)
+func midnightRotate() {
+	oneDay := 24 * time.Hour
+	t := time.Now()
+	midn := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)
+	d := midn.Sub(t)
+	if d < 0 {
+		midn = midn.Add(oneDay)
+		d = midn.Sub(t)
+	}
+	for {
+		time.Sleep(d)
+		d = oneDay
+		go rotateAllLogs()
+	}
+}
 
+func rotateAllLogs() {
+	logs.Range(func(key, value interface{}) bool {
+		log := value.(*Log)
+		return log.writer.Rotate() != nil
+	})
 }
