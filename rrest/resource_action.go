@@ -3,9 +3,9 @@ package rrest
 import (
 	"net/http"
 
-	"roo.bo/rlib/rhttp"
-	"roo.bo/rlib/rlog"
-	"roo.bo/rlib/rvalid"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rsql"
+	"github.com/dawei101/gor/rvalid"
 )
 
 func detail(rr IResource, r *http.Request) (error, interface{}) {

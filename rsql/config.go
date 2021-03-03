@@ -11,25 +11,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/dawei101/gor/rconfig"
 	"github.com/dawei101/gor/rlog"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
-
-func init() {
-	dbs := map[string]DBConfig{}
-	rconfig.ValueAssignTo("rsql", &dbs, nil)
-	for name, dbc := range dbs {
-		if err := Reg(name, dbc.DataSource, dbc.MaxOpenConns); err != nil {
-			panic(fmt.Sprint("could not create db:", dbc.DataSource, err.Error()))
-		}
-	}
-	if _, ok := DefaultDB(); !ok {
-		Warning(context.Background(), "no default db found in config!")
-	}
-	SetLogging(rconfig.IsDev())
-}
 
 type DBConfig struct {
 	DataSource   string `yaml:"dataSource"`
@@ -72,10 +57,11 @@ func getDB(name string) (*DBConn, bool) {
 // 获得 name 的 *sql.DB
 //
 // 获得前必须保证 InitDB 过，否则会 panic
-func DB(name string) *sql.DB {
+func Conn(name string) *sql.DB {
 	db, ok := getDB(name)
 	if !ok {
-		panic(fmt.Sprintf(" no database config named:%s", name))
+		rlog.Error(context.Background(), " no database config named:", name)
+		return nil
 	}
 	return db.DB
 }
@@ -83,8 +69,8 @@ func DB(name string) *sql.DB {
 // 获得 name 的 *sql.DB
 //
 // 获得前必须保证 `InitDB("default", "xxxx")` 过，否则会 panic
-func DefaultDB() *sql.DB {
-	return DB("default")
+func DefConn() *sql.DB {
+	return Conn("default")
 }
 
 // 获得*sqlx.DB
@@ -94,7 +80,7 @@ func DefaultDB() *sql.DB {
 // 请不要使用migration特性
 //
 // @see github.com/jmoiron/sqlx
-func DBX(name string) *sqlx.DB {
+func XConn(name string) *sqlx.DB {
 	rdb, ok := getDB(name)
 	if !ok {
 		panic(fmt.Sprintf(" no database config named:%s", name))
@@ -109,6 +95,6 @@ func DBX(name string) *sqlx.DB {
 // 请不要使用migration特性
 //
 // @see github.com/jmoiron/sqlx
-func DefDBX() *sqlx.DB {
-	return DBX("default")
+func DefXConn() *sqlx.DB {
+	return XConn("default")
 }

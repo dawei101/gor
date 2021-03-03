@@ -1,0 +1,9 @@
+debug: true
+rlog:
+  path: "/tmp/"
+  level: debug
+rredis:
+  default:
+    addr: no-server:6379
+    db: 0
+    password: 
