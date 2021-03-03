@@ -11,13 +11,23 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
+	"github.com/dawei101/gor/rconfig"
 	"github.com/dawei101/gor/rlog"
 )
 
-const Nil = redis.Nil
+const (
+	Nil     = redis.Nil
+	DefName = "default"
+)
 
 var _redizz map[string]*redis.Client = make(map[string]*redis.Client)
 var _redis_mu sync.RWMutex
+
+type Config struct {
+	Addr     string `yaml:"addr"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
+}
 
 //
 // 注册一个为name的redis实例
@@ -43,21 +53,9 @@ func Reg(name, addr, password string, db int) error {
 }
 
 //
-// 注册一个为name的redis实例
-//
-// 以下等同
-//
-//		RegDefault("localhost:6379", "", 0)
-//		Reg("default", "localhost:6379", "", 0)
-//
-func RegDefault(addr, password string, db int) error {
-	return Reg("default", addr, password, db)
-}
-
-//
 // 返回 *redis.Client, 参见：  https://github.com/go-redis/redis
 //
-func Redis(name string) *redis.Client {
+func Get(name string) *redis.Client {
 	_redis_mu.RLock()
 	defer _redis_mu.RUnlock()
 	ins, ok := _redizz[name]
@@ -70,6 +68,17 @@ func Redis(name string) *redis.Client {
 //
 // 返回 *redis.Client, 参见：  https://github.com/go-redis/redis
 //
-func DefaultRedis() *redis.Client {
-	return Redis("default")
+func DefGet() *redis.Client {
+	return Get(DefName)
+}
+
+func loadConfig() {
+	configs := map[string]Config{}
+	rconfig.DefConf().ValTo("rredis", &configs)
+
+	for name, config := range configs {
+		if err := Reg(name, config.Addr, config.Password, config.DB); err != nil {
+			panic(err)
+		}
+	}
 }

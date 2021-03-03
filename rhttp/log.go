@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	reqlog *rlog.RLog
-	apiLog *rlog.RLog
+	reqlog *rlog.Log
+	apiLog *rlog.Log
 )
 
 const (
@@ -28,11 +28,11 @@ const (
 //
 // 不设置，默认使用 rlog.DefaultLog()
 //
-func SetReqLog(qlog *rlog.RLog) {
+func SetReqLog(qlog *rlog.Log) {
 	reqlog = qlog
 }
 
-func getReqLog() *rlog.RLog {
+func getReqLog() *rlog.Log {
 	if reqlog != nil {
 		return reqlog
 	}
@@ -48,11 +48,11 @@ func GenerateReqId(r *http.Request) {
 
 }
 
-func SetApiLog(log *rlog.RLog) {
+func SetApiLog(log *rlog.Log) {
 	apiLog = log
 }
 
-func getApiLog() *rlog.RLog {
+func getApiLog() *rlog.Log {
 	if apiLog != nil {
 		return apiLog
 	}

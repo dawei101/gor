@@ -7,8 +7,9 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-	"roo.bo/rlib/rlog"
-	"roo.bo/rlib/rsql"
+
+	"github.com/dawei101/gor/rlog"
+	"github.com/dawei101/gor/rsql"
 )
 
 type resource struct {

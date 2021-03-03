@@ -28,11 +28,7 @@ func NewRender(opts ...render.Options) *Render {
 	})}
 }
 
-var Config struct {
+var config struct {
 	Server *ServerConfig           `yml:"server"`
 	Client map[string]ClientConfig `yml:"client"`
-}
-
-func init() {
-	rconfig.ValueAssignTo("rhttp", &Config, nil)
 }
