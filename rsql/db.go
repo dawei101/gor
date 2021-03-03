@@ -360,11 +360,11 @@ func Begin() (*DB, error) {
 
 // Use is change database
 func Use(db string) *DB {
-	return &DB{database: DBX(db)}
+	return &DB{database: XConn(db)}
 }
 
 func UseDefault() *DB {
-	return &DB{database: DefaultDBX()}
+	return &DB{database: DefXConn()}
 }
 
 // Exec default database
