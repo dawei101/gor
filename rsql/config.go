@@ -28,7 +28,7 @@ func init() {
 	if _, ok := DefaultDB(); !ok {
 		Warning(context.Background(), "no default db found in config!")
 	}
-	SetLogging(rconfig.IsDevMode())
+	SetLogging(rconfig.IsDev())
 }
 
 type DBConfig struct {
@@ -109,6 +109,6 @@ func DBX(name string) *sqlx.DB {
 // 请不要使用migration特性
 //
 // @see github.com/jmoiron/sqlx
-func DefaultDBX() *sqlx.DB {
+func DefDBX() *sqlx.DB {
 	return DBX("default")
 }

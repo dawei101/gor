@@ -20,7 +20,8 @@ var (
 )
 
 const (
-	_log_extra = "_log_extra"
+	_log_extra   = "_log_extra"
+	RequestIdKey = "*req*"
 )
 
 // 设置request log
@@ -36,6 +37,15 @@ func getReqLog() *rlog.RLog {
 		return reqlog
 	}
 	return rlog.DefaultLog()
+}
+
+func GenerateReqId(r *http.Request) {
+	if reqids_, ok := r.URL.Query()[RequestIdKey]; !ok || len(reqids_) == 0 {
+		reqid = xid.New().String()
+	} else {
+		reqid = reqids_[0]
+	}
+
 }
 
 func SetApiLog(log *rlog.RLog) {
@@ -69,12 +79,11 @@ func AddRequestLogExtra(r *http.Request, name string, val interface{}) {
 
 func prepareContext(r *http.Request) *http.Request {
 	reqid := ""
-	if reqids_, ok := r.URL.Query()[rlog.RequestIdKey]; !ok || len(reqids_) == 0 {
+	if reqids_, ok := r.URL.Query()[RequestIdKey]; !ok || len(reqids_) == 0 {
 		reqid = xid.New().String()
 	} else {
 		reqid = reqids_[0]
 	}
-	ctx := context.WithValue(r.Context(), rlog.RequestIdKey, reqid)
 	ctx = context.WithValue(ctx, _log_extra, requestLogExtra(r))
 	return r.WithContext(ctx)
 }
