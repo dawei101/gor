@@ -44,7 +44,7 @@ type Builder struct {
 func Model(model interface{}) *Builder {
 	return &Builder{
 		model: model,
-		db:    &DB{database: DefDBX()},
+		db:    &DB{database: DefXConn()},
 	}
 }
 
