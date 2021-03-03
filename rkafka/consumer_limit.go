@@ -12,13 +12,3 @@ func (l *Limiter) Run(f func()) {
 		<-l.c
 	}()
 }
-
-func (l *Limiter) Watch(f OnLimiter) {
-	if f != nil {
-		go func() {
-			for {
-				f(l.c)
-			}
-		}()
-	}
-}

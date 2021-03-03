@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+
 func TestRegConfig(t *testing.T) {
 	assert.NotNil(t, Reg("json", "test.json"))
 
