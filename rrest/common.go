@@ -1,49 +1,12 @@
-package rrest
+package rrestapi
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"reflect"
-	"strconv"
-
-	"database/sql"
-	"github.com/gorilla/mux"
-
-	"github.com/dawei101/gor/rhttp"
-	"github.com/dawei101/gor/rlog"
 	"github.com/dawei101/gor/rsql"
 )
 
 var (
-	mapper      = rsql.NewReflectMapper("db")
-	display_log = false
+	mapper = rsql.NewReflectMapper("db")
 )
-
-type PageFlag int
-
-type handler func(IResource, *http.Request) (error, interface{})
-
-const (
-	PageDetail PageFlag = 1 << iota
-	PageUpdate
-	PageCreate
-	PageDelete
-	PageSearch
-	PageRelation
-
-	PageAll PageFlag = -1 //位运算 ~0 = 111111111111
-)
-
-type IResource interface {
-	Route(*mux.Router)
-	lockWhere(*http.Request, *rsql.Builder) (*rsql.Builder, error)
-	lockFields(*http.Request, rsql.IModel) error
-	getDB() *rsql.DB
-	generateModel() rsql.IModel
-	generateModels() []rsql.IModel
-}
 
 func forceZeroFields(old, changeto rsql.IModel) (zeroFields []string) {
 	nonzeros := map[string]int{}
@@ -61,25 +24,6 @@ func forceZeroFields(old, changeto rsql.IModel) (zeroFields []string) {
 		}
 	}
 	return zeroFields
-}
-
-func handleHttp(rr IResource, h handler) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		err, data := h(rr, r)
-		if err != nil {
-			if rerr, ok := err.(rhttp.RespErr); ok {
-				rerr.Flush(w)
-				return
-			}
-			if err == sql.ErrNoRows {
-				rhttp.NewErrResp(404, "not found", err.Error()).Flush(w)
-				return
-			}
-			rhttp.NewErrResp(500, "server err", err.Error()).Flush(w)
-		} else {
-			rhttp.NewResp(data).Flush(w)
-		}
-	}
 }
 
 func getDBFieldValue(s interface{}, dbfield string) (interface{}, error) {

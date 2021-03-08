@@ -1,7 +1,0 @@
-devMode: true
-log:
-  path: /tmp
-db:
-  rrest:
-    dataSource: test:test@tcp(127.0.0.1)/rrest
-
