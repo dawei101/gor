@@ -39,7 +39,7 @@ func JsonBody(r *http.Request) (st *base.Struct, err error) {
 	if !ok {
 		body, err := ioutil.ReadAll(r.Body)
 		r.Body.Close()
-		r.Body = ioutil.NopCloser(bytes.NewBuffer([]byte("--data used already, @see rlib.JsonBody--")))
+		r.Body = ioutil.NopCloser(bytes.NewBuffer([]byte("--data used already --")))
 		val := map[string]interface{}{"_": "no data in body"}
 		if err != nil || len(body) == 0 {
 			ctx.Set("rbody", base.NewStruct(val))

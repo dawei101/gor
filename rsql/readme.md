@@ -7,7 +7,7 @@ Quick start!
 
 ```go
 import (
-    "roo.bo/rlib/rsql"
+    "github.com/dawei101/gor/rsql"
 )
 
 func main(){
@@ -16,7 +16,7 @@ func main(){
 
 ```
 
-数据库的连接基于rlib下的封装，默认使用default connection, 如果需要使用其他connection，可以指定
+数据库的连接基于下的封装，默认使用default connection, 如果需要使用其他connection，可以指定
 
 ```go
 // default db connection

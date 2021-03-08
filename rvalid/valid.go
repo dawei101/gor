@@ -55,7 +55,7 @@ func regDefaultValidations() {
 //
 // 验证实例字段
 //use for example:
-//		import rlib
+//		import
 //		user = &struct {
 //			Appid string `validate:"required,appid"`
 //			SN    string `validate:"required,sn"`
@@ -64,9 +64,9 @@ func regDefaultValidations() {
 //			Appid: "TI1ZDE1NzJhZTEwO",
 //		}
 //
-//		if err := rlib.ValidField(user); err != nil {
+//		if err := rvalid.ValidField(user); err != nil {
 //			fmt.Println(err)
-//			rlib.NewErrResp(-422, err.Error(), "")
+//			rvalid.NewErrResp(-422, err.Error(), "")
 //		}
 //
 func ValidField(v interface{}) error {
