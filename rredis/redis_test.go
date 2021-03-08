@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
+func TestRedis(t *testing.T) {
 	rconfig.Reg(DefName, "tests/config.yml")
 	assert.Panics(t, func() { loadConfig() })
 
