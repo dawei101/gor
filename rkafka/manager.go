@@ -2,6 +2,7 @@ package rkafka
 
 import (
 	"context"
+	"github.com/dawei101/gor/rconfig"
 	"sync"
 )
 
@@ -14,6 +15,14 @@ type Manager struct {
 
 type ManagerConf struct {
 	Consumers map[string]ConsumerConf
+}
+
+var manager = &Manager{}
+var managerConf = &ManagerConf{}
+
+func init() {
+	rconfig.DefConf().ValTo("kafka", managerConf)
+	manager = New(managerConf)
 }
 
 func New(managerConf *ManagerConf) *Manager {
@@ -29,10 +38,17 @@ func New(managerConf *ManagerConf) *Manager {
 	return m
 }
 
-func (m *Manager) OnProcesses(name string, fn OnProcess) {
-	consumer, ok := m.consumers[name]
+func Consume(name string, fn OnProcess) {
+	manager.Consume(name, fn)
+}
+
+func (m *Manager) Consume(name string, fn OnProcess) {
+	consumer, ok := manager.consumers[name]
 	if ok {
 		consumer.onProcess = fn
+		consumer.runOnce.Do(func() {
+			go consumer.Run()
+		})
 	}
 }
 
@@ -50,14 +66,6 @@ func (m *Manager) newConsumer(conf ConsumerConf) *Consumer {
 	c.wrap()
 	c.ctx, c.ctxCancel = context.WithCancel(m.ctx)
 	return c
-}
-
-func (m *Manager) Run() {
-	m.runOnce.Do(func() {
-		for _, v := range m.consumers {
-			go v.Run()
-		}
-	})
 }
 
 func (m *Manager) Stop() {

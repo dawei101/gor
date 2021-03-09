@@ -1,6 +1,7 @@
 package rconfig
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -21,43 +22,50 @@ type RConfig struct {
 type Config struct {
 	name    string
 	data    map[string]interface{}
-	RConfig RConfig
+	rConfig RConfig
+}
+
+func init() {
+	err := Reg(DefName, DefFile)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // register a configuration item
 // Reg("default","config.yml")
-func Reg(name, file string) {
+func Reg(name, file string) error {
 	_, ok := configs.Load(name)
-	if ok {
-		return
+	if !ok {
+		if !strings.HasSuffix(file, ".yml") {
+			return errors.New(fmt.Sprintf("the file `%s` is not a yml", file))
+		}
+
+		byteVal, err := ioutil.ReadFile(file)
+		if err != nil {
+			return err
+		}
+
+		data := make(map[string]interface{})
+		if err = yaml.Unmarshal(byteVal, &data); err != nil {
+			return err
+		}
+		c := &Config{name: name, data: data}
+		c.ValTo("", &c.rConfig)
+		configs.Store(name, c)
 	}
 
-	if !strings.HasSuffix(file, ".yml") {
-		panic(fmt.Sprintf("the file `%s` is not a yml", file))
-	}
-
-	byteVal, err := ioutil.ReadFile(file)
-	if err != nil {
-		panic(err)
-	}
-
-	data := make(map[string]interface{})
-	if err = yaml.Unmarshal(byteVal, &data); err != nil {
-		panic(err)
-	}
-	c := &Config{name: name, data: data}
-	c.ValTo("", &c.RConfig)
-	configs.Store(name, c)
+	return nil
 }
 
 // get a configuration item
 // Get("default")
 func Get(name string) *Config {
 	raw, ok := configs.Load(name)
-	if !ok {
-		panic(fmt.Sprintf("the config `%s` is not exist", name))
+	if ok {
+		return raw.(*Config)
 	}
-	return raw.(*Config)
+	return &Config{}
 }
 
 // set val to the struct
@@ -81,7 +89,7 @@ func (c *Config) ValTo(keyPath string, ptr interface{}) bool {
 }
 
 func (c *Config) IsDev() bool {
-	return c.RConfig.DevMode
+	return c.rConfig.DevMode
 }
 
 func DefConf() *Config {

@@ -6,6 +6,7 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/rs/xid"
 	"os"
+	"sync"
 )
 
 type OnProcess func(msg *kafka.Message, ctx context.Context)
@@ -28,6 +29,7 @@ type Consumer struct {
 
 	onProcess OnProcess
 	onError   OnError
+	runOnce   sync.Once
 }
 
 type ConsumerConf struct {
