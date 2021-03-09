@@ -22,12 +22,13 @@ require (
 	github.com/google/gofuzz v1.0.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/hashicorp/golang-lru v0.5.4
 	github.com/ilibs/gosql/v2 v2.1.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/opentracing/opentracing-go v1.1.1-0.20190913142402-a7454ce5950e // indirect
-	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/rs/xid v1.2.1
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
@@ -41,7 +42,7 @@ require (
 	golang.org/x/tools v0.0.0-20201121010211-780cb80bd7fb // indirect
 	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03 // indirect
 	google.golang.org/grpc v1.30.0 // indirect
-	gopkg.in/confluentinc/confluent-kafka-go.v1 v1.4.2
+	gopkg.in/confluentinc/confluent-kafka-go.v1 v1.4.2 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
