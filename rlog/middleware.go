@@ -9,12 +9,12 @@ import (
 	"github.com/rs/xid"
 )
 
-var reqIdGenerator = func(r *http.Request) string {
+var ctxIdGenerator = func(r *http.Request) string {
 	return xid.New().String()
 }
 
-func SetReqIdGenerator(fn func(*http.Request) string) {
-	reqIdGenerator = fn
+func SetCtxIdGenerator(fn func(*http.Request) string) {
+	ctxIdGenerator = fn
 }
 
 func Middleware_installRLog(handler http.Handler) http.Handler {
@@ -37,13 +37,13 @@ func (c *counter) Rise() int32 {
 }
 
 func prepareRequest(r *http.Request) *http.Request {
-	reqid := reqIdGenerator(r)
+	reqid := ctxIdGenerator(r)
 	ctx := context.WithValue(r.Context(), rlogCounterKey, &counter{})
 	ctx = context.WithValue(ctx, rlogReqidKey, reqid)
 	return r.WithContext(ctx)
 }
 
-func getReqId(ctx context.Context) string {
+func CtxId(ctx context.Context) string {
 	s := ctx.Value(rlogReqidKey)
 	if s == nil {
 		return "nil"

@@ -24,39 +24,20 @@ const (
 	RequestIdKey = "*req*"
 )
 
-// 设置request log
-//
-// 不设置，默认使用 rlog.DefaultLog()
-//
-func SetReqLog(qlog *rlog.Log) {
-	reqlog = qlog
-}
-
 func getReqLog() *rlog.Log {
 	if reqlog != nil {
 		return reqlog
 	}
-	return rlog.DefaultLog()
+	return rlog.DefLog()
 }
 
-func GenerateReqId(r *http.Request) {
-	if reqids_, ok := r.URL.Query()[RequestIdKey]; !ok || len(reqids_) == 0 {
-		reqid = xid.New().String()
+func GenerateReqId(r *http.Request) string {
+	reqids_, ok := r.URL.Query()[RequestIdKey]
+	if !ok || len(reqids_) == 0 {
+		return xid.New().String()
 	} else {
-		reqid = reqids_[0]
+		return reqids_[0]
 	}
-
-}
-
-func SetApiLog(log *rlog.Log) {
-	apiLog = log
-}
-
-func getApiLog() *rlog.Log {
-	if apiLog != nil {
-		return apiLog
-	}
-	return rlog.DefaultLog()
 }
 
 type reqLogExtra struct {
@@ -78,13 +59,7 @@ func AddRequestLogExtra(r *http.Request, name string, val interface{}) {
 }
 
 func prepareContext(r *http.Request) *http.Request {
-	reqid := ""
-	if reqids_, ok := r.URL.Query()[RequestIdKey]; !ok || len(reqids_) == 0 {
-		reqid = xid.New().String()
-	} else {
-		reqid = reqids_[0]
-	}
-	ctx = context.WithValue(ctx, _log_extra, requestLogExtra(r))
+	ctx := context.WithValue(r.Context(), _log_extra, requestLogExtra(r))
 	return r.WithContext(ctx)
 }
 

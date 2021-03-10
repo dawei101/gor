@@ -1,8 +1,6 @@
 package rhttp
 
-import (
-	"github.com/unrolled/render"
-)
+import ()
 
 type RenderConfig struct {
 	Directory string `yml:"directory"`
@@ -18,14 +16,6 @@ type ServerConfig struct {
 
 type ClientConfig struct {
 	BaseUrl string `yml:"baseUrl"`
-}
-
-func NewRender(opts ...render.Options) *Render {
-	return &Render{render.New(render.Options{
-		Charset:    "ISO-8859-1",
-		Directory:  "",
-		FileSystem: &LocalFileSystem{},
-	})}
 }
 
 var config struct {

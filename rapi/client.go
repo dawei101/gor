@@ -19,6 +19,10 @@ import (
 	"github.com/dawei101/gor/rlog"
 )
 
+const (
+	RequestIdKey = "*req*"
+)
+
 type _ParamsType int32
 
 const (
@@ -206,7 +210,7 @@ func (c HTTPClient) doCurlExec(method, url string, body string, header map[strin
 func (c HTTPClient) doCurl(method, urlstr string, body string, header map[string]string) (*http.Response, error) {
 
 	params := map[string]string{
-		rlog.RequestIdKey: rlog.RequestId(c.ctx),
+		RequestIdKey: rlog.CtxId(c.ctx),
 	}
 	urlstr = addParams(urlstr, toURLValues(params))
 
@@ -353,4 +357,14 @@ func checkParamsFile(params url.Values) bool {
 	}
 
 	return false
+}
+func SetApiLog(log *rlog.Log) {
+	apiLog = log
+}
+
+func getApiLog() *rlog.Log {
+	if apiLog != nil {
+		return apiLog
+	}
+	return rlog.DefaultLog()
 }

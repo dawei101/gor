@@ -3,7 +3,11 @@ package rhttp
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/unrolled/render"
 )
+
+var renderer *render.Render
 
 type Resp struct {
 	Status int         `json:"result"`
@@ -41,11 +45,12 @@ func (res *Resp) Flush(w http.ResponseWriter) error {
 	return nil
 }
 
-func (rr *Resp) DataAssignTo(data interface{}) {
+func (rr *Resp) ValTo(data interface{}) {
 	d, _ := json.Marshal(rr.Data)
 	json.Unmarshal(d, data)
 }
 
 func (res *Resp) FlushHtml(tpl string, w http.ResponseWriter) error {
 	// use rrender
+	return nil
 }

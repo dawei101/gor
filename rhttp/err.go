@@ -28,7 +28,7 @@ func (e RespErr) Flush(w http.ResponseWriter) {
 }
 
 func FlushErr(w http.ResponseWriter, err error) {
-	if ok, rerr := err.(RespErr); ok {
+	if rerr, ok := err.(RespErr); ok {
 		rerr.Flush(w)
 	}
 	NewRespErr(500, "server error", err.Error()).Flush(w)

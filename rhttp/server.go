@@ -3,18 +3,12 @@ package rhttp
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
-	"github.com/dawei101/gor/rcontext"
-	"github.com/dawei101/gor/rlog"
+	"github.com/dawei101/gor/rrouter"
 )
 
 func ListenAndServe(serveAt string, r *rrouter.Router) error {
-	router.Use(
-		rcontext.Middleware_installContext,
-		Middleware_httpRequestLog,
-		Middleware_panicLog)
 	srv := &http.Server{
 		Handler:      r,
 		Addr:         serveAt,

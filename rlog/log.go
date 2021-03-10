@@ -57,6 +57,10 @@ func GetLog(name string) *Log {
 	return raw.(*Log)
 }
 
+func DefLog() *Log {
+	return GetLog(defName)
+}
+
 func getLogFile(name string) string {
 	return fmt.Sprintf("%s.%s.log", filepath.Base(os.Args[0]), name)
 }
@@ -104,7 +108,7 @@ func (g *Log) log(ctx context.Context, level LogLevel, prefix string, vals ...in
 	fname := fpaths[len(fpaths)-1]
 	codeinfo := fmt.Sprintf("%s:L%d", fname, fline)
 
-	reqid := fmt.Sprintf("[req=%s]", getReqId(ctx))
+	reqid := fmt.Sprintf("[req=%s]", CtxId(ctx))
 	seq := fmt.Sprintf("[seq=%d]", logSerialNum(ctx))
 
 	vals = append([]interface{}{prefix, stime, reqid, seq, codeinfo}, vals...)

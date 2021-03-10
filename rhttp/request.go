@@ -31,7 +31,7 @@ func JsonBody(r *http.Request) (st *base.Struct, err error) {
 		return nil, NewRespErr(422, "body is not json", "")
 	}
 
-	ctx := rcontext.Context(r)
+	ctx := rcontext.ReqCtx(r)
 	if e_i, ok := ctx.Get("rbody_err"); ok {
 		err = e_i.(error)
 	}
