@@ -13,14 +13,14 @@ func init() {
 	Mem.Cache = arc
 }
 
-func (m MemCache) Get(key string) (value interface{}, ok bool) {
+func (m *MemCache) Get(key string) (value interface{}, ok bool) {
 	return m.Cache.Get(key)
 }
 
-func (m MemCache) Set(key string, value interface{}) {
+func (m *MemCache) Set(key string, value interface{}) {
 	m.Cache.Add(key, value)
 }
 
-func (m MemCache) Del(key string) {
+func (m *MemCache) Del(key string) {
 	m.Cache.Remove(key)
 }
