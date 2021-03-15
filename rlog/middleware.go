@@ -17,10 +17,10 @@ func SetCtxIdGenerator(fn func(*http.Request) string) {
 	ctxIdGenerator = fn
 }
 
-func Middleware_installRLog(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handler.ServeHTTP(w, prepareRequest(r))
-	})
+func Middleware_installRLog(handle http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handle(w, prepareRequest(r))
+	}
 }
 
 const (

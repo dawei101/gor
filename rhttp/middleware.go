@@ -38,7 +38,7 @@ func Middleware_panicLog(handle http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				rlog.Error(r.Context(), err, strings.ReplaceAll(string(debug.Stack()), "\n", "\t"))
-				NewErrResp(500, "server went wrong", "").Flush(w)
+				NewRespErr(500, "server went wrong", "")
 			}
 		}()
 		handle.ServeHTTP(w, r)

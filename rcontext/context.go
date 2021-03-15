@@ -5,7 +5,12 @@ import (
 	"net/http"
 
 	"github.com/dawei101/gor/base"
+	"github.com/dawei101/gor/rrouter"
 )
+
+func init() {
+	rrouter.RegGlobalMiddleware(Middleware_installRContext)
+}
 
 const (
 	__context_k = "__context_k"
@@ -23,10 +28,10 @@ func Ctx(ctx context.Context) *base.Struct {
 	return c_i.(*base.Struct)
 }
 
-func Middleware_installRContext(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handler.ServeHTTP(w, RequestInstall(r))
-	})
+func Middleware_installRContext(handle http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handle(w, RequestInstall(r))
+	}
 }
 
 func RequestInstall(r *http.Request) *http.Request {

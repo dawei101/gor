@@ -2,10 +2,10 @@ package rest
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rrouter"
+	"github.com/dawei101/gor/rsql"
 	"net/http"
-	"roo.bo/rlib"
-	"roo.bo/rlib/rsql"
 	"strconv"
 )
 
@@ -17,7 +17,7 @@ type Detail struct {
 }
 
 func (d Detail) Parse() {
-	vars := mux.Vars(d.R)
+	vars := rrouter.Vars(d.R)
 	id, _ := strconv.Atoi(vars["id"])
 	q := rsql.Model(d.Model)
 	for k, v := range d.Force {
@@ -25,8 +25,8 @@ func (d Detail) Parse() {
 	}
 	err := rsql.Model(d.Model).Where("id = ?", id).Get()
 	if err != nil {
-		rlib.NewErrResp(-404, "", err.Error()).Flush(d.W)
+		rhttp.NewErrResp(-404, "", err.Error()).Flush(d.W)
 		return
 	}
-	rlib.NewResp(d.Model).Flush(d.W)
+	rhttp.NewResp(d.Model).Flush(d.W)
 }

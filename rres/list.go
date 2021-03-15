@@ -2,9 +2,9 @@ package rest
 
 import (
 	"fmt"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rsql"
 	"net/http"
-	"roo.bo/rlib"
-	"roo.bo/rlib/rsql"
 	"strconv"
 	"strings"
 )
@@ -128,7 +128,7 @@ func (l List) Parse() {
 	builder.All()
 
 	d.Items = l.Model
-	rlib.NewResp(d).Flush(l.W)
+	rhttp.NewResp(d).Flush(l.W)
 }
 
 func in(target string, arr []string) bool {

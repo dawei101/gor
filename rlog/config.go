@@ -18,6 +18,7 @@ var config struct {
 }
 
 func loadConfig() error {
+
 	rconfig.DefConf().ValTo("rlog", &config)
 
 	if config.Path == "" {

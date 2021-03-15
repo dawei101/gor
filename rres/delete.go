@@ -2,10 +2,10 @@ package rest
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rrouter"
+	"github.com/dawei101/gor/rsql"
 	"net/http"
-	"roo.bo/rlib"
-	"roo.bo/rlib/rsql"
 	"strconv"
 )
 
@@ -17,7 +17,7 @@ type Delete struct {
 }
 
 func (d Delete) Parse() {
-	vars := mux.Vars(d.R)
+	vars := rrouter.Vars(d.R)
 	id, _ := strconv.Atoi(vars["id"])
 	q := rsql.Model(d.Model)
 
@@ -29,16 +29,16 @@ func (d Delete) Parse() {
 
 	err := q.Get()
 	if err != nil {
-		rlib.NewErrResp(-404, "", err.Error()).Flush(d.W)
+		rhttp.NewErrResp(-404, "", err.Error()).Flush(d.W)
 		return
 	}
 
 	_, err = q.Delete()
 
 	if err != nil {
-		rlib.NewErrResp(-422, "", err.Error()).Flush(d.W)
+		rhttp.NewErrResp(-422, "", err.Error()).Flush(d.W)
 		return
 	}
 
-	rlib.NewResp("").Flush(d.W)
+	rhttp.NewResp("").Flush(d.W)
 }

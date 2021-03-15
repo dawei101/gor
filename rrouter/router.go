@@ -4,9 +4,19 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dawei101/gor/base"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/xid"
 )
+
+var globalMiddlewares *base.OrderedMap
+
+func RegGlobalMiddleware(mw Middleware) {
+	if _, ok := globalMiddlewares.Get(mw); ok {
+		return
+	}
+	globalMiddlewares.Set(mw, true)
+}
 
 type Middleware func(http.HandlerFunc) http.HandlerFunc
 
@@ -16,9 +26,13 @@ type Router struct {
 }
 
 func New() *Router {
+	mws := []Middleware{}
+	for _, mw := range globalMiddlewares.Keys() {
+		mws = append(mws, mw.(Middleware))
+	}
 	return &Router{
 		httprouter.New(),
-		[]Middleware{},
+		mws,
 	}
 }
 

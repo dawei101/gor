@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"github.com/dawei101/gor/base"
+	"github.com/dawei101/gor/rhttp"
+	"github.com/dawei101/gor/rsql"
+	"github.com/dawei101/gor/rvalid"
+
 	"net/http"
-	"roo.bo/rlib"
-	"roo.bo/rlib/base"
-	"roo.bo/rlib/rsql"
 )
 
 type Validator func(k string, form *base.Struct) (string, bool)
@@ -18,7 +20,7 @@ type Create struct {
 }
 
 func (c Create) Parse() {
-	req, _ := rlib.JsonBody(c.R)
+	req, _ := rhttp.JsonBody(c.R)
 
 	for k, v := range c.Force {
 		req.Set(k, v)
@@ -26,25 +28,24 @@ func (c Create) Parse() {
 
 	req.DataAssignTo(c.Model)
 
-	if err := rlib.FieldValid(c.Model); err != nil {
-		rlib.NewErrResp(-422, "", err.Error()).Flush(c.W)
+	if err := rvalid.FieldValid(c.Model); err != nil {
+		rhttp.NewErrResp(-422, "", err.Error()).Flush(c.W)
 		return
 	}
 
 	for k, f := range c.Validate {
 		msg, ok := f(k, req)
 		if !ok {
-			rlib.NewErrResp(-422, msg, "").Flush(c.W)
+			rhttp.NewErrResp(-422, msg, "").Flush(c.W)
 			return
 		}
 	}
 
 	_, err := rsql.Model(c.Model).ShowSQL().Create()
 	if err != nil {
-		rlib.NewErrResp(-422,"create fail",err.Error()).Flush(c.W)
+		rhttp.NewErrResp(-422, "create fail", err.Error()).Flush(c.W)
 		return
 	}
 
-
-	rlib.NewResp(c.Model).Flush(c.W)
+	rhttp.NewResp(c.Model).Flush(c.W)
 }
