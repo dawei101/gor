@@ -100,6 +100,16 @@ func (r *Struct) Set(key string, val interface{}) {
 	r.Raw[key] = val
 }
 
+func (r *Struct) Keys() []string {
+	r.Lock()
+	defer r.Unlock()
+	keys := []string{}
+	for k, _ := range r.Raw {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func (r *Struct) JsonMarshal() []byte {
 	r.RLock()
 	defer r.RUnlock()

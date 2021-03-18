@@ -1,6 +1,7 @@
 package rhttp
 
 import (
+	"database/sql"
 	"net/http"
 	"strings"
 )
@@ -41,5 +42,13 @@ func FlushErr(w http.ResponseWriter, r *http.Request, err error) {
 		rerr.Flush(w, r)
 		return
 	}
+	if err == sql.ErrNoRows {
+		NewRespErr(404, "no resource found", err.Error()).Flush(w, r)
+		return
+	}
+	if strings.Contains(err.Error(), "Duplicate") {
+		NewRespErr(409, "resource duplicated", err.Error()).Flush(w, r)
+		return
+	} 
 	NewRespErr(500, "server error", err.Error()).Flush(w, r)
 }
