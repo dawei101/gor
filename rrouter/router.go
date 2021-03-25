@@ -135,5 +135,5 @@ func (r *Router) DELETE(path string, handle http.HandlerFunc) {
 // frequently used, non-standardized or custom methods (e.g. for internal
 // communication with a proxy).
 func (r *Router) Handle(method, path string, handle http.HandlerFunc) {
-	r.HandlerFunc(method, path, handle)
+	r.HandlerFunc(method, path, r.Wrap(handle))
 }

@@ -35,10 +35,7 @@ func Middleware_installRContext(handle http.HandlerFunc) http.HandlerFunc {
 }
 
 func RequestInstall(r *http.Request) *http.Request {
-	if ReqCtx(r) == nil {
-		container := base.NewStruct(map[string]interface{}{})
-		ctx := context.WithValue(r.Context(), __context_k, container)
-		r = r.WithContext(ctx)
-	}
-	return r
+	container := base.NewStruct(map[string]interface{}{})
+	ctx := context.WithValue(r.Context(), __context_k, container)
+	return r.WithContext(ctx)
 }

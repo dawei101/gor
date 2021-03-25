@@ -14,14 +14,12 @@ type Action interface {
 }
 
 type One struct {
-	Action
-	Model         rsql.IModel
+	Model         interface{}
 	ValidateModel ValidateModelFunc
 }
 
-
-func newModel(model rsql.IModel) rsql.IModel {
-	m := reflect.New(reflect.TypeOf(model).Elem()).Elem().Addr().Interface()
+func (one *One) newModel() rsql.IModel {
+	m := reflect.New(reflect.TypeOf(one.Model).Elem()).Elem().Addr().Interface()
 	return m.(rsql.IModel)
 }
 

@@ -16,13 +16,13 @@ type Update struct {
 func (one Update) Handle(w http.ResponseWriter, r *http.Request) {
 	id := rrouter.Var(r, "id")
 
-	newm := newModel(one.Model)
+	newm := one.newModel()
 	if err := rhttp.JsonBodyTo(r, newm); err != nil {
 		rhttp.FlushErr(w, r, err)
 		return
 	}
 
-	old := newModel(one.Model)
+	old := one.newModel()
 	err := rsql.Model(old).Where(old.PK()+" = ?", id).Get()
 	if err == sql.ErrNoRows {
 		rhttp.NewErrResp(404, "no resource found", err.Error()).Json(w)
@@ -33,9 +33,11 @@ func (one Update) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := one.ValidateModel(r, newm); err != nil {
-		rhttp.FlushErr(w, r, err)
-		return
+	if one.ValidateModel != nil {
+		if err := one.ValidateModel(r, newm); err != nil {
+			rhttp.FlushErr(w, r, err)
+			return
+		}
 	}
 
 	fields := forceZeroFields(old, newm)

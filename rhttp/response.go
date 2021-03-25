@@ -39,5 +39,6 @@ func (res *Resp) Json(w http.ResponseWriter) error {
 
 func (res *Resp) Html(w http.ResponseWriter, tpl string) error {
 	// use rrender
-	return renderer.HTML(w, res.Status, tpl, res)
+	//return renderer.HTML(w, res.Status, tpl, res)
+	return res.Json(w)
 }

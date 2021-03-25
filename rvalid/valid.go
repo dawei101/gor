@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"sync"
 
+	"github.com/dawei101/gor/rhttp"
 	valid "gopkg.in/go-playground/validator.v9"
 )
 
@@ -81,5 +82,5 @@ func ValidField(v interface{}) error {
 	for _, e := range verrs {
 		msg += fmt.Sprintf("%+v", e) + ";"
 	}
-	return errors.New(errmsg)
+	return rhttp.NewRespErr(422, errmsg, "")
 }

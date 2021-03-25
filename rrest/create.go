@@ -15,7 +15,7 @@ type Create struct {
 
 func (one *Create) Handle(w http.ResponseWriter, r *http.Request) {
 
-	m := newModel(one.Model)
+	m := one.newModel()
 	if err := rhttp.JsonBodyTo(r, m); err != nil {
 		rhttp.FlushErr(w, r, err)
 		return
@@ -25,14 +25,17 @@ func (one *Create) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := one.ValidateModel(r, m); err != nil {
-		rhttp.FlushErr(w, r, err)
-		return
+	if one.ValidateModel != nil {
+		if err := one.ValidateModel(r, m); err != nil {
+			rhttp.FlushErr(w, r, err)
+			return
+		}
 	}
 
 	id, err := rsql.Model(m).Create()
 	if err != nil {
 		rhttp.FlushErr(w, r, err)
+		return
 	}
 	rlog.Debug(r.Context(), "resouce created, id=", id)
 	rhttp.NewResp(m).Json(w)

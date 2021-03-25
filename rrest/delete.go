@@ -16,7 +16,7 @@ type Delete struct {
 func (one Delete) Handle(w http.ResponseWriter, r *http.Request) {
 	id := rrouter.Var(r, "id")
 
-	old := newModel(one.Model)
+	old := one.newModel()
 	err := rsql.Model(old).Where(old.PK()+" = ?", id).Get()
 	if err == sql.ErrNoRows {
 		rhttp.NewErrResp(404, "no resource found", err.Error()).Json(w)
@@ -25,6 +25,13 @@ func (one Delete) Handle(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rhttp.NewErrResp(500, "server error", err.Error()).Json(w)
 		return
+	}
+
+	if one.ValidateModel != nil {
+		if err := one.ValidateModel(r, old); err != nil {
+			rhttp.FlushErr(w, r, err)
+			return
+		}
 	}
 
 	_, err = rsql.Model(old).Where(old.PK()+"=?", id).Delete()

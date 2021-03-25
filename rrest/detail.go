@@ -15,7 +15,7 @@ type Detail struct {
 
 func (one *Detail) Handle(w http.ResponseWriter, r *http.Request) {
 	id := rrouter.Var(r, "id")
-	model := newModel(one.Model)
+	model := one.newModel()
 	err := rsql.Model(model).Where(model.PK()+" = ?", id).Get()
 	if err == sql.ErrNoRows {
 		rhttp.NewErrResp(404, "no resource found", err.Error()).Json(w)

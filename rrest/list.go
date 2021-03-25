@@ -2,6 +2,7 @@ package rrest
 
 import (
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/dawei101/gor/rhttp"
@@ -33,9 +34,10 @@ func reqPagination(r *http.Request) *Pagination {
 		page = 0
 	}
 	pageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
-	if pageSize < 5 {
-		pageSize = 5
+	if pageSize < 20 {
+		pageSize = 20
 	}
+
 	return &Pagination{
 		Page:     page,
 		PageSize: pageSize,
@@ -43,9 +45,15 @@ func reqPagination(r *http.Request) *Pagination {
 	}
 }
 
+func (l *List) newModels() (models_ptr interface{}) {
+	return reflect.New(reflect.SliceOf(reflect.TypeOf(l.Model))).Elem().Addr().Interface()
+}
+
 func (l *List) Handle(w http.ResponseWriter, r *http.Request) {
-	sql := rsql.Model(l.Model)
+	models := l.newModels()
+	sql := rsql.Model(models)
 	qs := r.URL.Query()
+	var err error
 
 	if l.Filters != nil {
 		for _, f := range l.Filters {
@@ -59,17 +67,34 @@ func (l *List) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if l.BeforeQuery != nil {
-		err := l.BeforeQuery(r, sql)
+		err = l.BeforeQuery(r, sql)
 		if err != nil {
 			rhttp.FlushErr(w, r, err)
 			return
 		}
 	}
 	p := reqPagination(r)
-	p.Total, _ = sql.Count()
+	p.Total, err = sql.Count()
+	if err != nil {
+		rhttp.FlushErr(w, r, err)
+		return
+	}
+	if p.Total == 0 {
+		rhttp.NewResp(&Data{
+			Items:      []int{},
+			Pagination: p,
+		}).Json(w)
+		return
+	}
+
 	sql.Offset(p.PageSize * p.Page).Limit(p.PageSize)
+	err = sql.All()
+	if err != nil {
+		rhttp.FlushErr(w, r, err)
+		return
+	}
 	rhttp.NewResp(&Data{
-		Items:      sql.All,
+		Items:      models,
 		Pagination: p,
-	})
+	}).Json(w)
 }
