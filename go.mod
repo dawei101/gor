@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/confluentinc/confluent-kafka-go v1.4.2
+	github.com/confluentinc/confluent-kafka-go v1.6.1
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-redis/redis/v8 v8.3.3
 	github.com/go-sql-driver/mysql v1.5.0

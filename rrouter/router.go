@@ -9,13 +9,13 @@ import (
 	"github.com/rs/xid"
 )
 
-var globalMiddlewares *base.OrderedMap
+var globalMiddlewares *base.OrderedMap = base.NewOrderedMap()
 
 func RegGlobalMiddleware(mw Middleware) {
-	if _, ok := globalMiddlewares.Get(mw); ok {
+	if _, ok := globalMiddlewares.Get(&mw); ok {
 		return
 	}
-	globalMiddlewares.Set(mw, true)
+	globalMiddlewares.Set(&mw, true)
 }
 
 type Middleware func(http.HandlerFunc) http.HandlerFunc
@@ -27,8 +27,8 @@ type Router struct {
 
 func New() *Router {
 	mws := []Middleware{}
-	for _, mw := range globalMiddlewares.Keys() {
-		mws = append(mws, mw.(Middleware))
+	for _, mw_pt := range globalMiddlewares.Keys() {
+		mws = append(mws, *mw_pt.(*Middleware))
 	}
 	return &Router{
 		httprouter.New(),

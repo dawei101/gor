@@ -55,7 +55,7 @@ func Reg(name, addr, password string, db int) error {
 //
 // 返回 *redis.Client, 参见：  https://github.com/go-redis/redis
 //
-func Get(name string) *redis.Client {
+func Redis(name string) *redis.Client {
 	_redis_mu.RLock()
 	defer _redis_mu.RUnlock()
 	ins, ok := _redizz[name]
@@ -68,8 +68,8 @@ func Get(name string) *redis.Client {
 //
 // 返回 *redis.Client, 参见：  https://github.com/go-redis/redis
 //
-func DefGet() *redis.Client {
-	return Get(DefName)
+func DefRedis() *redis.Client {
+	return Redis(DefName)
 }
 
 func loadConfig() {

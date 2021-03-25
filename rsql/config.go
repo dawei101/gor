@@ -18,8 +18,8 @@ import (
 
 type DBConfig struct {
 	DataSource   string `yaml:"dataSource"`
-	MaxOpenConns int    `yaml:"MaxOpenConns"`
-	DBType       string `yaml:"DBType"`
+	MaxOpenConns int    `yaml:"maxOpenConns"`
+	DBType       string `yaml:"dbType"`
 }
 
 type DBConn struct {

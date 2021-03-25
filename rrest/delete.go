@@ -16,12 +16,6 @@ type Delete struct {
 func (one Delete) Handle(w http.ResponseWriter, r *http.Request) {
 	id := rrouter.Var(r, "id")
 
-	newm := newModel(one.Model)
-	if err := rhttp.JsonBodyTo(r, newm); err != nil {
-		rhttp.FlushErr(w, r, err)
-		return
-	}
-
 	old := newModel(one.Model)
 	err := rsql.Model(old).Where(old.PK()+" = ?", id).Get()
 	if err == sql.ErrNoRows {
@@ -33,17 +27,10 @@ func (one Delete) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := one.ValidateModel(r, newm); err != nil {
-		rhttp.FlushErr(w, r, err)
-		return
-	}
-
-	fields := forceZeroFields(old, newm)
-	_, err = rsql.Model(newm).Where(old.PK()+"=?", id).Update(fields...)
+	_, err = rsql.Model(old).Where(old.PK()+"=?", id).Delete()
 	if err != nil {
 		rhttp.NewErrResp(500, "update fail", err.Error()).Json(w)
 		return
 	}
-
-	rhttp.NewResp(newm).Json(w)
+	rhttp.NewResp(nil).Json(w)
 }

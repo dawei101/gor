@@ -47,13 +47,15 @@ func (l *List) Handle(w http.ResponseWriter, r *http.Request) {
 	sql := rsql.Model(l.Model)
 	qs := r.URL.Query()
 
-	for _, f := range l.Filters {
-		op := NewFilterOp(f)
-		if val, ok := qs[op.field]; ok {
-			op.Query(sql, val)
-		}
-		if val, ok := qs[op.query_field]; ok {
-			op.Query(sql, val)
+	if l.Filters != nil {
+		for _, f := range l.Filters {
+			op := NewFilterOp(f)
+			if val, ok := qs[op.field]; ok {
+				op.Query(sql, val)
+			}
+			if val, ok := qs[op.query_field]; ok {
+				op.Query(sql, val)
+			}
 		}
 	}
 	if l.BeforeQuery != nil {
