@@ -28,6 +28,7 @@ var (
 )
 
 func forceZeroFields(old, changeto rsql.IModel) (zeroFields []string) {
+	pk := old.PK()
 	nonzeros := map[string]int{}
 	fields := mapper.FieldMap(reflect.ValueOf(old))
 	for field, fval := range fields {
@@ -38,7 +39,7 @@ func forceZeroFields(old, changeto rsql.IModel) (zeroFields []string) {
 
 	fields = mapper.FieldMap(reflect.ValueOf(changeto))
 	for field, fval := range fields {
-		if _, ok := nonzeros[field]; ok && rsql.IsZero(fval) {
+		if _, ok := nonzeros[field]; ok && rsql.IsZero(fval) && field != pk {
 			zeroFields = append(zeroFields, field)
 		}
 	}

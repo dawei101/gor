@@ -47,5 +47,5 @@ func (one Update) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rhttp.NewResp(newm).Json(w)
+	rhttp.NewResp(map[string]string{}).Json(w)
 }
