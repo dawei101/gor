@@ -70,12 +70,23 @@ func regDefaultValidations() {
 //			rvalid.NewErrResp(-422, err.Error(), "")
 //		}
 //
-func ValidField(v interface{}) error {
-	err := _valid.Struct(v)
-	if nil == err {
+func ValidForm(v interface{}) error {
+	return errToRespErr(_valid.Struct(v))
+
+}
+
+func Valid(field interface{}, tag string) error {
+	return errToRespErr(_valid.Var(field, tag))
+}
+
+func errToRespErr(err error) error {
+	if err == nil {
 		return nil
 	}
-	verrs := err.(valid.ValidationErrors)
+	verrs, ok := err.(valid.ValidationErrors)
+	if !ok {
+		return err
+	}
 	errmsg := fmt.Sprintf("%s is not correct, notice on the '%s' tag", verrs[0].Field(), verrs[0].Tag())
 
 	msg := ""

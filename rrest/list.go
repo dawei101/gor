@@ -23,12 +23,12 @@ type Data struct {
 }
 
 type Pagination struct {
-	Page     int   `json:"page"`
-	PageSize int   `json:"pageSize"`
-	Total    int64 `json:"total"`
+	Page     int `json:"page"`
+	PageSize int `json:"pageSize"`
+	Total    int `json:"total"`
 }
 
-func reqPagination(r *http.Request) *Pagination {
+func ReqPagination(r *http.Request) *Pagination {
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	if page < 0 {
 		page = 0
@@ -73,13 +73,14 @@ func (l *List) Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	p := reqPagination(r)
-	p.Total, err = sql.Count()
+	p := ReqPagination(r)
+	total, err := sql.Count()
 	if err != nil {
 		rhttp.FlushErr(w, r, err)
 		return
 	}
-	if p.Total == 0 {
+	p.Total = int(total)
+	if p.Total == 0 || p.PageSize*p.Page > p.Total {
 		rhttp.NewResp(&Data{
 			Items:      []int{},
 			Pagination: p,

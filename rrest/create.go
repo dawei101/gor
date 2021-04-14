@@ -20,7 +20,7 @@ func (one *Create) Handle(w http.ResponseWriter, r *http.Request) {
 		rhttp.FlushErr(w, r, err)
 		return
 	}
-	if err := rvalid.ValidField(m); err != nil {
+	if err := rvalid.ValidForm(m); err != nil {
 		rhttp.FlushErr(w, r, err)
 		return
 	}

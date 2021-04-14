@@ -34,7 +34,7 @@ func NewErrResp(status int, msg string, desc string) *Resp {
 }
 
 func (res *Resp) Json(w http.ResponseWriter) error {
-	return renderer.JSON(w, res.Status, res)
+	return renderer.JSON(w, 200, res)
 }
 
 func (res *Resp) Html(w http.ResponseWriter, tpl string) error {

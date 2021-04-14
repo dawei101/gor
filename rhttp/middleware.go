@@ -8,7 +8,12 @@ import (
 	"strings"
 
 	"github.com/dawei101/gor/rlog"
+	"github.com/dawei101/gor/rrouter"
 )
+
+func init() {
+	rrouter.RegGlobalMiddleware(Middleware_panicLog)
+}
 
 type gzipResponseWriter struct {
 	io.Writer
@@ -33,14 +38,14 @@ func Middleware_gzip(handler http.Handler) http.Handler {
 	})
 }
 
-func Middleware_panicLog(handle http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func Middleware_panicLog(handle http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
 				rlog.Error(r.Context(), err, strings.ReplaceAll(string(debug.Stack()), "\n", "\t"))
-				NewRespErr(500, "server went wrong", "")
+				FlushErr(w, r, NewRespErr(500, "server went wrong", ""))
 			}
 		}()
-		handle.ServeHTTP(w, r)
-	})
+		handle(w, r)
+	}
 }
